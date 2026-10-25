@@ -1,0 +1,42 @@
+# trcodes Enterprise Starter — Next.js 16 & Prisma 7 Boilerplate
+
+> Master boilerplate dan standar arsitektur web modern full stack Next.js 16.4.1 (App Router), TypeScript, PostgreSQL, Prisma 7, dynamic RBAC permission matrix, enterprise TOTP MFA, dan automated CLI feature scaffolding.
+
+## Ikhtisar Arsitektur & Spesifikasi Sistem
+- **Framework**: Next.js 16.4.1 (App Router + Turbopack + React 19)
+- **Bahasa**: TypeScript (strict mode, 100% type safety)
+- **Basis Data**: PostgreSQL dengan primary key UUIDv7 time-sortable
+- **ORM**: Prisma 7 dengan PrismaPg adapter
+- **Keamanan Enterprise**:
+  - Content Security Policy (Strict Nonce CSP tanpa 'unsafe-inline' di script maupun style)
+  - Autentikasi JWT HS256 dengan rotasi `sessionVersion` dan pembatalan instan
+  - Multi-Factor Authentication (TOTP MFA) dengan enkripsi secret AES-256-GCM dan hashed recovery codes
+  - Distributed Rate Limiting berbasis tabel PostgreSQL dengan query atomic `ON CONFLICT DO UPDATE`
+  - Pelacakan sesi multi-device (`user_sessions`) dengan kontrol pencabutan sesi per perangkat
+  - Append-only security audit trail (`audit_logs`) dan pemantau login attempts
+- **Otorisasi & RBAC**:
+  - Matriks izin fitur granular (read, add, edit, delete)
+  - Pemisahan hak akses per peran pengguna
+  - Skrip otomatisasi sinkronisasi fitur ke database (`npm run db:sync`)
+- **Developer Ergonomics**:
+  - CLI Scaffolding tool otomatis: `npm run make:feature <key> "<Label>"` (generate 8 file standar dalam 1 detik)
+  - Form styles terpusat di `utils/form-styles.ts`
+  - Modal terpadu di `components/Modal.tsx`
+  - Dynamic rows-per-page Pagination di `components/Pagination.tsx`
+  - E2E Playwright Smoke Testing: `npm run smoke`
+
+## Tautan Rujukan Utama
+- [Beranda](https://trcodes.dev/): Landing page arsitektur, live system metrics, dan showcase fitur inti.
+- [Halaman Masuk](https://trcodes.dev/login): Autentikasi aman berlapis dengan rate limiting dan proteksi MFA.
+- [Sitemap XML](https://trcodes.dev/sitemap.xml): Peta seluruh indeks halaman web publik.
+
+## Standar Modul Dashboard (8-File Shape)
+Setiap fitur dashboard mengimplementasikan 8 file standar yang terisolasi:
+1. `<feature>.schema.ts` — Zod input validation & TypeScript contracts.
+2. `<feature>.service.ts` — Mutasi database Prisma + jejak audit (`import "server-only"`).
+3. `<feature>.queries.ts` — Pembacaan data, paginasi, & sorting (`import "server-only"`).
+4. `<feature>.actions.ts` — Server Actions terproteksi `requirePermission` (`"use server"`).
+5. `<feature>.hooks.ts` — React Query hooks untuk mutasi & pembaruan cache UI (`"use client"`).
+6. `<Feature>Modal.tsx` — Dialog form input mematuhi `form-styles.ts` & `Modal.tsx`.
+7. `<Feature>Table.tsx` — Tabel data responsif dengan kontrol RBAC & `Pagination.tsx`.
+8. `<Feature>Page.tsx` — Server component dengan proteksi `requirePageAccess`.

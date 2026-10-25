@@ -1,0 +1,11 @@
+# Cursor Rules for trcodes Enterprise Boilerplate
+
+You are an AI coding assistant working in this repository.
+Before performing any coding task, read and strictly adhere to the enterprise architecture and coding guidelines in AGENTS.md.
+
+## 5 Golden Rules
+1. ALWAYS use CLI scaffolding: `npm run make:feature <key> "<Label>" [plural_slug]` when creating new dashboard features. Do not write the 8 files manually.
+2. NO INLINE STYLES: Strict Nonce CSP blocks inline `style={{ ... }}` in production. Use Tailwind CSS classes or CSS variables.
+3. Centralized Form Styles: Always use tokens from `@/common/utils/form-styles`: `inputCls`, `selectCls`, `textareaCls`, `numberInputCls`, `labelCls`, `errorCls`.
+4. Localized Image Uploads: Never create generic upload utilities in `common/`. Image uploads must be localized per module (`save<Feature>Image`, upload action, UI field).
+5. Exact RBAC Action Names: Actions are strictly `"read" | "add" | "edit" | "delete"`. Use `can("feature_key", "add")` (never `"create"`). Always run `npm run lint && npx tsc --noEmit`.

@@ -1,0 +1,58 @@
+services:
+  # Database Service (PostgreSQL 16)
+  postgres:
+    image: postgres:16-alpine
+    container_name: trcodes_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-db_trcodes}
+      POSTGRES_USER: ${POSTGRES_USER:-trcodes_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - trcodes_net
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-trcodes_user} -d ${POSTGRES_DB:-db_trcodes}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Application Service (Next.js 16 App Router)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: trcodes_app
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${POSTGRES_USER:-trcodes_user}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-db_trcodes}?schema=public
+      SESSION_SECRET: ${SESSION_SECRET}
+      MFA_ENCRYPTION_KEY: ${MFA_ENCRYPTION_KEY:-}
+      SEED_ADMIN_NAME: ${SEED_ADMIN_NAME:-Super Administrator}
+      SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-admin@example.com}
+      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD}
+      ENFORCE_SUPER_ADMIN_MFA: ${ENFORCE_SUPER_ADMIN_MFA:-false}
+      ALLOW_DESTRUCTIVE_SEED: ${ALLOW_DESTRUCTIVE_SEED:-false}
+      TRUST_PROXY: "true"
+      PORT: 3000
+    ports:
+      # Bind ke 127.0.0.1 pada host (default port 3004) agar tidak bentrok dengan PM2 (3000-3003)
+      - "127.0.0.1:${APP_PORT:-3004}:3000"
+    volumes:
+      # Persistensi media yang diunggah pengguna
+      - ./public/uploads:/app/public/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - trcodes_net
+
+networks:
+  trcodes_net:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local

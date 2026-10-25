@@ -1,0 +1,15 @@
+/* Dipakai khusus app/global-error.tsx lewat <link>, karena global-error
+   menggantikan root layout sehingga CSS aplikasi tidak ikut dimuat dan style
+   inline akan diblokir CSP nonce. */
+.ge-body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: system-ui, sans-serif;
+}
+
+.ge-content {
+  text-align: center;
+}

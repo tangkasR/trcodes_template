@@ -1,0 +1,223 @@
+@import "tailwindcss";
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  --font-display: var(--font-syne), sans-serif;
+  --font-serif: var(--font-newsreader), Georgia, serif;
+
+  --color-ink: #000;
+  --color-paper: #fff;
+  --color-graphite: #4a4a4a;
+  --color-ash: #bdbdbd;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+/* body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+} */
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 7rem;
+}
+body {
+  font-family: var(--font-newsreader), Georgia, serif;
+  font-size: 1.1875rem;
+  line-height: 1.75;
+  color: #111;
+  background: #fff;
+  overflow-x: hidden;
+}
+.dots {
+  background-image: radial-gradient(rgba(0, 0, 0, 0.16) 1px, transparent 1.4px);
+  background-size: 22px 22px;
+}
+.box {
+  border: 2px solid #000;
+  box-shadow: 6px 6px 0 #000;
+  background: #fff;
+}
+.inv .box {
+  border-color: #fff;
+  box-shadow: 6px 6px 0 #fff;
+}
+.photo {
+  filter: grayscale(1) contrast(1.1);
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  border: 2px solid #000;
+  background: #000;
+  color: #fff;
+  padding: 0.7rem 1.25rem;
+  font: 800 1rem/1.2 var(--font-syne), sans-serif;
+  box-shadow: 4px 4px 0 #8a8a8a;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.btn:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 #8a8a8a;
+}
+.btn.ghost {
+  background: #fff;
+  color: #000;
+  box-shadow: 4px 4px 0 #000;
+}
+.btn.ghost:hover {
+  box-shadow: 2px 2px 0 #000;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: 2px solid #000;
+  background: #fff;
+  color: #000;
+  padding: 0.35rem 0.9rem;
+  font: 700 0.95rem/1.3 var(--font-syne), sans-serif;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+}
+.chip:hover,
+.chip[aria-selected="true"] {
+  background: #000;
+  color: #fff;
+}
+.chip small {
+  font: 400 0.8rem var(--font-newsreader-italic), serif;
+  font-style: italic;
+  opacity: 0.75;
+}
+.hl {
+  background: #000;
+  color: #fff;
+  padding: 0 0.25em;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+.sticker {
+  display: inline-block;
+  background: #000;
+  color: #fff;
+  font: 800 0.95rem/1 var(--font-syne), sans-serif;
+  padding: 0.45rem 0.9rem;
+  transform: rotate(-4deg);
+  box-shadow: 3px 3px 0 #8a8a8a;
+}
+.kick {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  font: 700 0.95rem var(--font-syne), sans-serif;
+}
+.kick::before {
+  content: "";
+  width: 0.6rem;
+  height: 0.6rem;
+  background: currentColor;
+  transform: rotate(45deg);
+}
+.nav {
+  font-family: var(--font-syne), sans-serif;
+  padding: 0.3rem 0.6rem;
+}
+.nav.on {
+  background: #000;
+  color: #fff;
+}
+.nav:not(.on):hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.fade-end {
+  -webkit-mask-image: linear-gradient(#000 45%, transparent);
+  mask-image: linear-gradient(#000 45%, transparent);
+}
+.prose {
+  max-width: 42rem;
+}
+.prose h2 {
+  font: 800 1.75rem/1.2 var(--font-syne), sans-serif;
+  margin: 3rem 0 0.5rem;
+  scroll-margin-top: 6rem;
+}
+.prose p {
+  margin-top: 1.1rem;
+}
+.prose blockquote {
+  margin: 2.5rem 0;
+  border-left: 6px solid #000;
+  padding-left: 1.25rem;
+  font-family: var(--font-newsreader-italic), Georgia, serif;
+  font-size: 1.6rem;
+  line-height: 1.4;
+  font-style: italic;
+}
+.prose pre {
+  margin: 1.75rem 0;
+  overflow-x: auto;
+  background: #000;
+  color: #fff;
+  padding: 1.25rem;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  box-shadow: 6px 6px 0 #8a8a8a;
+}
+.prose .note {
+  margin-top: 2.5rem;
+  border: 2px dashed #000;
+  padding: 1.25rem;
+}
+.prose ul,
+.lst {
+  margin-top: 1rem;
+  border-top: 2px solid #000;
+}
+.prose li,
+.lst li {
+  padding: 0.7rem 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+}
+a:focus-visible,
+button:focus-visible {
+  outline: 3px solid #000;
+  outline-offset: 3px;
+}
+.inv a:focus-visible {
+  outline-color: #fff;
+}
+#stage {
+  transition: opacity 0.3s;
+}
+#stage.swap {
+  opacity: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  #stage,
+  .btn,
+  .chip {
+    transition: none;
+  }
+}

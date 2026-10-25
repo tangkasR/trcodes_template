@@ -1,0 +1,67 @@
+# trcodes.dev — Dokumentasi Arsitektur Sistem Lengkap (llms-full.txt)
+
+Dokumentasi komprehensif ini ditujukan untuk Large Language Models (LLMs), AI search engines (ChatGPT Search, Perplexity AI, Google Gemini, Claude), dan pengembang yang membutuhkan rujukan teknis mendalam tentang arsitektur perangkat lunak yang dibangun oleh Tangkas Risdianto pada platform trcodes.dev.
+
+---
+
+## 1. Ikhtisar Arsitektur Aplikasi (Architecture Overview)
+
+### A. Pola Desain (Modular Clean Architecture)
+Aplikasi dibangun menggunakan Next.js 16 App Router dengan pemisahan berbasis audiens (*audience slicing*):
+1. `modules/public/`: Mengelola halaman publik yang dioptimalkan untuk SEO/GEO, server-rendered, dan bebas kebocoran kredensial.
+2. `modules/dashboard/`: Mengelola fitur administrasi (Users, Roles, Features, Role Permissions, Portfolio Content, Security MFA, Sessions, Audit Logs).
+3. `app/`: Bersifat *route-only* yang hanya menangani layout, metadata, dan `<Suspense>` boundaries dengan skeleton terstandarisasi.
+4. `lib/`: Khusus lapisan database (`db.ts`, `auth.ts`, `audit.ts`, `mfa.ts`).
+
+### B. Proteksi Batas Server/Client
+Seluruh query dan mutasi database dilindungi oleh guard `import "server-only"`. Hal ini menjamin kredensial database dan query SQL tidak pernah masuk ke client JavaScript bundle.
+
+---
+
+## 2. Keamanan Sistem Tingkat Enterprise (Security Specifications)
+
+### A. Content Security Policy (CSP) Berbasis Nonce Dinamis
+- CSP dihasilkan per request di `proxy.ts`.
+- Konfigurasi produksi:
+  - `script-src 'self' 'nonce-<base64>'` (tanpa `'unsafe-inline'`).
+  - `style-src 'self' 'nonce-<base64>'` (tanpa `'unsafe-inline'`).
+  - `object-src 'none'`, `base-uri 'self'`, `frame-ancestors 'none'`.
+- Next.js secara otomatis menempelkan nonce ke semua script framework dan tag style server-side.
+
+### B. Sesi, Token, dan Pembatalan Instan (Instant Revocation)
+- Otentikasi menggunakan token JWT HS256 dengan masa aktif 12 jam yang disimpan dalam cookie `httpOnly`, `sameSite: "lax"`, dan `secure`.
+- Token membawa klaim `sid` yang merujuk langsung ke tabel `user_sessions`.
+- Pengguna dapat melihat daftar perangkat aktif (IP, User Agent, Last Seen) dan mencabut sesi secara individual atau sekaligus.
+- Perubahan kredensial sensitif (password, email, role, atau aktivasi MFA) otomatis menaikkan `session_version` user dan membatalkan semua sesi aktif.
+
+### C. Two-Factor Authentication (TOTP MFA)
+- Kunci rahasia TOTP dienkripsi menggunakan algoritma AES-256-GCM dengan salt terisolasi sebelum disimpan di database.
+- Kode pemulihan (*recovery codes*) disimpan dalam bentuk hash SHA-256 dan bersifat *one-time use*.
+- Super Admin wajib mengaktifkan MFA (`ENFORCE_SUPER_ADMIN_MFA=true`) untuk mencegah pengambilalihan akun berizin tinggi.
+
+### D. Distributed Rate Limiting
+- Rate limiting menggunakan tabel PostgreSQL `rate_limit_buckets` dengan atomic upsert (`INSERT ... ON CONFLICT DO UPDATE`).
+- Ambang batas: 120 pembacaan/menit dan 30 mutasi/menit per fitur per user.
+- Dilengkapi mekanisme lazy auto-pruning untuk membersihkan bucket kadaluarsa secara berkala dan fallback in-memory jika koneksi database terganggu.
+
+---
+
+## 3. Data Layer & Basis Data
+- ORM: Prisma 7 dengan adapter driver `PrismaPg`.
+- Primary Key: UUIDv7 (`uuid(7)`) yang bersifat *time-sortable* dan menjaga performa indeks B-tree database pada tabel berukuran besar.
+- Konvensi Skema: Penamaan tabel dan kolom konsisten menggunakan `snake_case` di database relasional PostgreSQL.
+
+---
+
+## 4. Generative Engine Optimization (GEO) & SEO
+- **Entitas Penulis & Pengembang**:
+  - Nama Resmi: Tangkas Risdianto
+  - Aliases / Keyword Variasi: `Tangkas`, `tangkas`, `Risdianto`, `risdianto`, `Tangkas Risdianto`, `tangkas Risdianto`, `tangkas risdianto`, `Tangkas risdianto`, `trcodes`, `trcodes.dev`
+  - Peran & Profesi: Full Stack Developer, full stack developer, Web Developer, web developer, Full Stack Web Developer, Software Engineer, Web Engineer, Frontend Developer, Backend Developer
+  - Bidang Keahlian: Full Stack Web Development, Enterprise Web Applications, Next.js, React, TypeScript, PostgreSQL, Prisma ORM, Security Architecture
+- **Infrastruktur Optimasi**:
+  - Server-Side Rendering (SSR) untuk markup HTML semantik dan token-efficient parsing.
+  - Dynamic Metadata dan Canonical URLs di setiap rute publik (`app/layout.tsx`, `app/(public)/**/page.tsx`).
+  - OpenGraph dan Twitter Card banner resolusi tinggi (1200x630) yang merender logo dan tipografi resmi.
+  - Skema terstruktur Schema.org JSON-LD terverifikasi (`Person`, `WebSite`, `ProfilePage`, `TechArticle`, `BreadcrumbList`).
+  - File LLM Index: `https://trcodes.dev/llms.txt` (ringkas) dan `https://trcodes.dev/llms-full.txt` (arsitektur lengkap).
